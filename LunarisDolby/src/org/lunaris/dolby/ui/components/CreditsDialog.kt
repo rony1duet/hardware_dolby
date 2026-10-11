@@ -6,7 +6,9 @@
 package org.lunaris.dolby.ui.components
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,12 +24,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 data class Contributor(
     val name: String,
@@ -43,31 +52,13 @@ fun CreditsDialog(
 ) {
     val context = LocalContext.current
     
-    val repoUrl = "https://github.com/Pong-Development/hardware_dolby"
+    val repoUrl = "https://github.com/rony1duet/LunarisDolby"
     
     val mainContributors = listOf(
         Contributor(
-            name = "Ghost",
-            githubUsername = "Ghosuto",
-            contribution = "Rewrite Dolby in Compose (Lunaris Dolby)",
-            isHighlighted = true
-        ),
-        Contributor(
-            name = "Adithya R",
-            githubUsername = "adithya2306",
-            contribution = "AOSPA Dolby Manager (Initial Code)",
-            isHighlighted = true
-        ),
-        Contributor(
-            name = "Kenway",
-            githubUsername = "kenway214",
-            contribution = "Base & Treble Changes, EQ Tuning",
-            isHighlighted = true
-        ),
-        Contributor(
-            name = "tranQuila",
-            githubUsername = "MrTopia",
-            contribution = "Adding per-device dolby state memory",
+            name = "MD RONY HOSSEN",
+            githubUsername = "rony1duet",
+            contribution = "Developer & Maintainer",
             isHighlighted = true
         )
     )
@@ -150,7 +141,7 @@ fun CreditsDialog(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
-                                    text = "Thank you to all contributors who made this project possible!",
+                                    text = "Lunaris Dolby Atmos for Android",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
@@ -200,7 +191,7 @@ fun CreditsDialog(
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                     Text(
-                                        text = "hardware_dolby",
+                                        text = "github.com/rony1duet/LunarisDolby",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                     )
@@ -216,7 +207,7 @@ fun CreditsDialog(
                     }
                     item {
                         Text(
-                            text = "Main Contributors",
+                            text = "Main Contributor",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -225,44 +216,6 @@ fun CreditsDialog(
                     }
                     items(mainContributors) { contributor ->
                         ContributorCard(contributor = contributor)
-                    }
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.medium,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.People,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "And all other contributors",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Check the GitHub repository for the complete list",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
                     }
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -303,6 +256,28 @@ private fun ContributorCard(
 ) {
     val context = LocalContext.current
     val githubUrl = "https://github.com/${contributor.githubUsername}"
+    val avatarUrl = "https://avatars.githubusercontent.com/${contributor.githubUsername}"
+    
+    var avatarBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    LaunchedEffect(contributor.githubUsername) {
+        withContext(Dispatchers.IO) {
+            try {
+                val connection = URL(avatarUrl).openConnection() as HttpURLConnection
+                connection.instanceFollowRedirects = true
+                connection.connectTimeout = 8000
+                connection.readTimeout = 8000
+                connection.inputStream.use { stream ->
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                    if (bitmap != null) {
+                        avatarBitmap = bitmap.asImageBitmap()
+                    }
+                }
+            } catch (e: Exception) {
+                // Fallback to default person icon
+            }
+        }
+    }
     
     Card(
         modifier = Modifier
@@ -334,16 +309,31 @@ private fun ContributorCard(
                 else
                     MaterialTheme.colorScheme.primary
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = if (contributor.isHighlighted)
-                            MaterialTheme.colorScheme.onTertiary
-                        else
-                            MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(28.dp)
-                    )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val bitmap = avatarBitmap
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = contributor.name,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(MaterialTheme.shapes.medium),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = if (contributor.isHighlighted)
+                                MaterialTheme.colorScheme.onTertiary
+                            else
+                                MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
             
@@ -390,3 +380,4 @@ private fun ContributorCard(
         }
     }
 }
+

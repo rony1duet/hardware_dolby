@@ -122,7 +122,7 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
 
     fun applySavedState() {
     checkEffect()
-        val enabled = defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, true)
+        val enabled = defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false)
         dolbyEffect.dsOn = enabled
         if (enabled) {
             restoreSavedProfileIfNeeded()

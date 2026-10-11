@@ -80,7 +80,7 @@ fun AppProfileSettingsCard(
                 
                 Text(
                     text = stringResource(R.string.app_profiles_title),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )

@@ -50,7 +50,7 @@ fun AppProfileScreen(
                 title = { 
                     Text(
                         stringResource(R.string.app_profiles_title),
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     ) 

@@ -5,7 +5,9 @@
 //
 
 android_app {
-    name: "DSPVolumeSynchronizer",
+    // Keep this distinct from the Xiaomi DSPVolumeSynchronizer module exposed
+    // through hardware/xiaomi.
+    name: "DolbyDSPVolumeSynchronizer",
     certificate: "platform",
     srcs: ["src/**/*.java"],
     platform_apis: true,

@@ -105,7 +105,7 @@ PRODUCT_PACKAGES += \
 
 # DSP Volume Synchronizer
 PRODUCT_PACKAGES += \
-    DSPVolumeSynchronizer
+    DolbyDSPVolumeSynchronizer
 
 # LunarisDolby
 PRODUCT_PACKAGES += \

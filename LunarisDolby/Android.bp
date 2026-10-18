@@ -7,7 +7,7 @@
 //
 
 android_app {
-    name: "LunarisDolby",
+    name: "LunarisDolby_hw",
 
     srcs: ["src/**/*.kt"],
     resource_dirs: ["res"],

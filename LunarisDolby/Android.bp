@@ -40,8 +40,6 @@ android_app {
 }
 
 prebuilt_etc {
-
-prebuilt_etc {
     name: "privapp-permissions-dolby.xml",
     src: "privapp-permissions-dolby.xml",
     sub_dir: "permissions",

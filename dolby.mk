@@ -19,7 +19,7 @@ DOLBY_PATH := hardware/dolby
 
 # Soong Namespace
 PRODUCT_SOONG_NAMESPACES += \
-   $(DOLBY_PATH)
+    $(DOLBY_PATH)
 
 # Enable codec support
 AUDIO_FEATURE_ENABLED_DS2_DOLBY_DAP := true
@@ -33,7 +33,7 @@ DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DOLBY_PATH)/dolby_framework_matr
 PRODUCT_PACKAGES += \
     vendor.dolby.hardware.dms@2.0-service.xml \
     vendor.dolby.media.c2.xml
-    
+
 # Configs
 PRODUCT_COPY_FILES += \
     $(DOLBY_PATH)/proprietary/vendor/etc/media_codecs_dolby_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_dolby_audio.xml
@@ -53,25 +53,25 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     init.dolby.rc
 
-# Overlays    
+# Overlays
 PRODUCT_PACKAGES += \
     DolbyFrameworksResCommon
 
 # Spatial Audio
 PRODUCT_COPY_FILES += \
-    $(DOLBY_PATH)/configs/android.hardware.sensor.dynamic.head_tracker.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.dynamic.head_tracker.xml \
+    $(DOLBY_PATH)/configs/android.hardware.sensor.dynamic.head_tracker.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.dynamic.head_tracker.xml
 
 # Spatial Audio: optimize spatializer effect
 PRODUCT_VENDOR_PROPERTIES += \
-       audio.spatializer.effect.util_clamp_min=300
+        audio.spatializer.effect.util_clamp_min=300
 
 # Spatial Audio: declare use of spatial audio
 PRODUCT_VENDOR_PROPERTIES += \
-       ro.audio.spatializer_enabled=true \
-       ro.audio.headtracking_enabled=true \
-       ro.audio.spatializer_transaural_enabled_default=false \
-       ro.audio.stereo_spatialization_enabled=true \
-       persist.vendor.audio.spatializer.speaker_enabled=true
+        ro.audio.spatializer_enabled=true \
+        ro.audio.headtracking_enabled=true \
+        ro.audio.spatializer_transaural_enabled_default=false \
+        ro.audio.stereo_spatialization_enabled=true \
+        persist.vendor.audio.spatializer.speaker_enabled=true
 
 # Spatial Audio Proprietary blobs
 PRODUCT_PACKAGES += \
@@ -107,9 +107,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     DolbyDSPVolumeSynchronizer
 
-# LunarisDolby
+# LunarisDolby - renamed to avoid duplicate Soong module name conflict
 PRODUCT_PACKAGES += \
-    LunarisDolby
+    LunarisDolby_hw
 
 # Dolby Proprietary blobs
 PRODUCT_COPY_FILES += \
@@ -170,4 +170,3 @@ PRODUCT_PACKAGES += \
 # Shim
 PRODUCT_PACKAGES += \
     libcodec2_hidl_shim.vendor
-

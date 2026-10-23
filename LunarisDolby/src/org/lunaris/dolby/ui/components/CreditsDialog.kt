@@ -53,12 +53,36 @@ fun CreditsDialog(
     val context = LocalContext.current
     
     val repoUrl = "https://github.com/rony1duet/LunarisDolby"
-    
+
     val mainContributors = listOf(
-        Contributor(
+         Contributor(
             name = "MD RONY HOSSEN",
             githubUsername = "rony1duet",
-            contribution = "Developer & Maintainer",
+            contribution = "Compose Material 3 UI,Improve per app audio profiles and Improve QS tiles",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "Ghost",
+            githubUsername = "Ghosuto",
+            contribution = "Rewrite Dolby in Compose (Lunaris Dolby)",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "Adithya R",
+            githubUsername = "adithya2306",
+            contribution = "AOSPA Dolby Manager (Initial Code)",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "Kenway",
+            githubUsername = "kenway214",
+            contribution = "Base & Treble Changes, EQ Tuning",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "tranQuila",
+            githubUsername = "MrTopia",
+            contribution = "Adding per-device dolby state memory",
             isHighlighted = true
         )
     )

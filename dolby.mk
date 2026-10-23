@@ -107,9 +107,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     DolbyDSPVolumeSynchronizer
 
-# LunarisDolby - renamed to avoid duplicate Soong module name conflict
 PRODUCT_PACKAGES += \
-    LunarisDolby_hw
+    LunarisDolby
 
 # Dolby Proprietary blobs
 PRODUCT_COPY_FILES += \

@@ -3,7 +3,6 @@
 [![Android](https://img.shields.io/badge/Platform-Android_14%2B-green.svg)](https://android.com)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Material 3](https://img.shields.io/badge/Design-Material_3_Expressive-purple.svg)](https://m3.material.io)
-[![Maintainer](https://img.shields.io/badge/Maintainer-rony1duet-blueviolet.svg)](https://github.com/rony1duet)
 
 Modern **Dolby Atmos** audio management application written with **Jetpack Compose Material 3 Expressive**, designed for AOSP-based custom ROMs and systemless deployment (KernelSU / Magisk / APatch).
 
@@ -78,12 +77,6 @@ Add `LunarisDolby` to `PRODUCT_PACKAGES` in your device configuration:
 PRODUCT_PACKAGES += \
     LunarisDolby
 ```
-
----
-
-## 👤 Maintainer
-
-- **MD RONY HOSSEN** ([@rony1duet](https://github.com/rony1duet))
 
 ---
 

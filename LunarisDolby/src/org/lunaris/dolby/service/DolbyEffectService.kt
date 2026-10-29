@@ -165,13 +165,21 @@ class DolbyEffectService : Service() {
         private const val TAG = "DolbyEffectService"
 
         fun start(context: Context) {
-            val intent = Intent(context, DolbyEffectService::class.java)
-            context.startService(intent)
+            try {
+                val intent = Intent(context, DolbyEffectService::class.java)
+                context.startService(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start service", e)
+            }
         }
 
         fun stop(context: Context) {
-            val intent = Intent(context, DolbyEffectService::class.java)
-            context.stopService(intent)
+            try {
+                val intent = Intent(context, DolbyEffectService::class.java)
+                context.stopService(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to stop service", e)
+            }
         }
     }
 }

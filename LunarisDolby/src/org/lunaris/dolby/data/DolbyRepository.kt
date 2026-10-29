@@ -5,16 +5,20 @@
 
 package org.lunaris.dolby.data
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioAttributes
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.service.quicksettings.TileService
 import org.lunaris.dolby.DolbyConstants
 import org.lunaris.dolby.DolbyConstants.DsParam
 import org.lunaris.dolby.R
 import org.lunaris.dolby.audio.DolbyAudioEffect
 import org.lunaris.dolby.domain.models.*
+import org.lunaris.dolby.service.DolbyEffectService
+import org.lunaris.dolby.tile.DolbyTileService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,8 +34,49 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
     private val _isOnSpeaker = MutableStateFlow(checkIsOnSpeaker())
     val isOnSpeaker: StateFlow<Boolean> = _isOnSpeaker.asStateFlow()
     
-    private val _currentProfile = MutableStateFlow(0)
+    private val _currentProfile = MutableStateFlow(readSavedProfile() ?: 0)
     val currentProfile: StateFlow<Int> = _currentProfile.asStateFlow()
+
+    private val _dolbyEnabled = MutableStateFlow(defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false))
+    val dolbyEnabled: StateFlow<Boolean> = _dolbyEnabled.asStateFlow()
+
+    private val prefChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        when (key) {
+            DolbyConstants.PREF_ENABLE -> {
+                val enabled = defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false)
+                if (_dolbyEnabled.value != enabled) {
+                    _dolbyEnabled.value = enabled
+                }
+                try {
+                    checkEffect()
+                    if (dolbyEffect.dsOn != enabled) {
+                        dolbyEffect.dsOn = enabled
+                    }
+                } catch (e: Exception) {
+                    DolbyConstants.dlog(TAG, "Error syncing dolbyEffect dsOn: ${e.message}")
+                }
+            }
+            DolbyConstants.PREF_PROFILE -> {
+                val profile = readSavedProfile() ?: 0
+                if (_currentProfile.value != profile) {
+                    _currentProfile.value = profile
+                }
+                try {
+                    checkEffect()
+                    if (dolbyEffect.profile != profile) {
+                        dolbyEffect.profile = profile
+                    }
+                    restoreProfilePreset(profile)
+                } catch (e: Exception) {
+                    DolbyConstants.dlog(TAG, "Error syncing dolbyEffect profile: ${e.message}")
+                }
+            }
+        }
+    }
+
+    init {
+        defaultPrefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
+    }
 
     val stereoWideningSupported = context.resources.getBoolean(R.bool.dolby_stereo_widening_supported)
     val volumeLevelerSupported = context.resources.getBoolean(R.bool.dolby_volume_leveler_supported)
@@ -61,6 +106,8 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
                 DolbyConstants.dlog(TAG, "Lost audio effect control, recreating")
                 dolbyEffect.release()
                 dolbyEffect = createDolbyEffect()
+                val enabled = defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false)
+                dolbyEffect.dsOn = enabled
                 restoreSavedProfileIfNeeded()
             }
         } catch (e: Exception) {
@@ -147,10 +194,18 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
 
     fun getDolbyEnabled(): Boolean {
         return try {
-            dolbyEffect.dsOn
+            checkEffect()
+            val prefEnabled = defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false)
+            val effectEnabled = dolbyEffect.dsOn
+            if (prefEnabled != effectEnabled) {
+                dolbyEffect.dsOn = prefEnabled
+                prefEnabled
+            } else {
+                effectEnabled
+            }
         } catch (e: Exception) {
             DolbyConstants.dlog(TAG, "Error getting Dolby enabled state: ${e.message}")
-            false
+            defaultPrefs.getBoolean(DolbyConstants.PREF_ENABLE, false)
         }
     }
 
@@ -161,6 +216,22 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
             checkEffect()
             dolbyEffect.dsOn = enabled
             defaultPrefs.edit().putBoolean(DolbyConstants.PREF_ENABLE, enabled).apply()
+            _dolbyEnabled.value = enabled
+
+            if (enabled) {
+                DolbyEffectService.start(context)
+            } else {
+                DolbyEffectService.stop(context)
+            }
+
+            try {
+                TileService.requestListeningState(
+                    context,
+                    ComponentName(context, DolbyTileService::class.java)
+                )
+            } catch (e: Exception) {
+                DolbyConstants.dlog(TAG, "Error requesting tile listening state: ${e.message}")
+            }
         } catch (e: Exception) {
             DolbyConstants.dlog(TAG, "Error setting Dolby enabled: ${e.message}")
         }
@@ -189,6 +260,14 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
             }
             restoreProfilePreset(profile)
             _currentProfile.value = profile
+            try {
+                TileService.requestListeningState(
+                    context,
+                    ComponentName(context, DolbyTileService::class.java)
+                )
+            } catch (e: Exception) {
+                DolbyConstants.dlog(TAG, "Error requesting tile listening state: ${e.message}")
+            }
             DolbyConstants.dlog(TAG, "Profile set to: $profile")
         } catch (e: Exception) {
             DolbyConstants.dlog(TAG, "Error setting current profile: ${e.message}")
@@ -897,6 +976,11 @@ class DolbyRepository(private val context: Context) : AutoCloseable {
         if (!isReleased) {
             DolbyConstants.dlog(TAG, "Releasing repository resources")
             isReleased = true
+            try {
+                defaultPrefs.unregisterOnSharedPreferenceChangeListener(prefChangeListener)
+            } catch (e: Exception) {
+                DolbyConstants.dlog(TAG, "Error unregistering pref listener: ${e.message}")
+            }
             try {
                 dolbyEffect.release()
             } catch (e: Exception) {

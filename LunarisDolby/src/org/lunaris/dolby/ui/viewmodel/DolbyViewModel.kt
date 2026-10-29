@@ -27,6 +27,7 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
     
     private var speakerStateJob: Job? = null
     private var profileChangeJob: Job? = null
+    private var dolbyEnabledJob: Job? = null
     private var isCleared = false
 
     init {
@@ -34,6 +35,7 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
         loadSettings()
         observeSpeakerState()
         observeProfileChanges()
+        observeDolbyEnabled()
     }
     
     private fun observeSpeakerState() {
@@ -54,6 +56,18 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
             repository.currentProfile.collect {
                 if (!isCleared) {
                     DolbyConstants.dlog(TAG, "Profile changed to: $it")
+                    loadSettings()
+                }
+            }
+        }
+    }
+
+    private fun observeDolbyEnabled() {
+        dolbyEnabledJob?.cancel()
+        dolbyEnabledJob = viewModelScope.launch {
+            repository.dolbyEnabled.collect {
+                if (!isCleared) {
+                    DolbyConstants.dlog(TAG, "Dolby enabled state changed: $it")
                     loadSettings()
                 }
             }
@@ -115,11 +129,6 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.setDolbyEnabled(enabled)
-                if (enabled) {
-                    DolbyEffectService.start(getApplication())
-                } else {
-                    DolbyEffectService.stop(getApplication())
-                }
                 loadSettings()
             } catch (e: Exception) {
                 DolbyConstants.dlog(TAG, "Error setting Dolby enabled: ${e.message}")
@@ -318,6 +327,8 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
         speakerStateJob = null
         profileChangeJob?.cancel()
         profileChangeJob = null
+        dolbyEnabledJob?.cancel()
+        dolbyEnabledJob = null
         repository.close()
         super.onCleared()
     }

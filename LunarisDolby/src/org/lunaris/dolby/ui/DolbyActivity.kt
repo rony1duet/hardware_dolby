@@ -74,6 +74,7 @@ class DolbyActivity : ComponentActivity() {
         override fun onResume(owner: LifecycleOwner) {
             super.onResume(owner)
             DolbyConstants.dlog(TAG, "Lifecycle: onResume")
+            dolbyViewModel.loadSettings()
             dolbyViewModel.updateSpeakerState()
         }
         

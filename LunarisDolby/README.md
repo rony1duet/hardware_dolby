@@ -37,7 +37,7 @@ LunarisDolby/
 ### AOSP / ROM Source Integration
 Clone to `packages/apps/LunarisDolby` or include via local manifest:
 ```bash
-git clone https://github.com/rony1duet/hardware_dolby.git -b PixelOS-17-base hardware/dolby
+git clone https://github.com/rony1duet/hardware_dolby.git -b PixelOS-16-QPR2 hardware/dolby
 ```
 
 Add `LunarisDolby` to `PRODUCT_PACKAGES` in your device makefile:

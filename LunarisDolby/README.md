@@ -1,85 +1,51 @@
 # LunarisDolby
 
-[![Android](https://img.shields.io/badge/Platform-Android_14%2B-green.svg)](https://android.com)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Material 3](https://img.shields.io/badge/Design-Material_3_Expressive-purple.svg)](https://m3.material.io)
+Dolby Atmos audio management application built with Jetpack Compose (Material 3). Designed for custom ROM trees and systemless installation via KernelSU, Magisk, or APatch.
 
-Modern **Dolby Atmos** audio management application written with **Jetpack Compose Material 3 Expressive**, designed for AOSP-based custom ROMs and systemless deployment (KernelSU / Magisk / APatch).
+## Features
 
----
+- **Material You UI:** Dynamic color theming and preset carousel (Dynamic, Movie, Music, Voice, Game, Custom).
+- **Quick Settings Tile Sync:** Real-time state synchronization between the Dolby QS tile and app preferences without requiring an app restart.
+- **Parametric Equalizer:** Multi-band graphic equalizer with presets and JSON import/export support.
+- **Audio Enhancement:** Dialogue Enhancer, Bass Enhancer, and Volume Leveler controls.
+- **Per-App Audio Profiles:** Automatically switches audio profiles based on the active foreground app.
+- **Per-Endpoint Settings:** Retains separate equalizer and profile configurations for Speaker, Headset, and Bluetooth devices.
 
-## ✨ Features
+## Project Structure
 
-- **🎨 Modern Material 3 Expressive Design**:
-  - Full dynamic color extraction and Material You theming.
-  - Interactive profile selector carousel (Dynamic, Movie, Music, Voice, Game, Custom).
-  - Modern bottom navigation bar with fluid transitions.
-
-- **⚡ Real-Time Quick Settings Sync**:
-  - Instant bi-directional state synchronization between the Quick Settings Dolby tile and the application.
-  - No need to restart the app to reflect toggled Dolby Atmos states.
-
-- **🎛️ Advanced Equalizer & Tuning**:
-  - Multi-band interactive equalizer with Bezier curve visualization and draggable sliders (10, 15, and 20 bands).
-  - Bass Enhancer, Mid Enhancer, Treble Enhancer with customizable curves.
-  - Volume Leveler and Dialogue Enhancer support.
-  - Custom preset import & export system (JSON file format).
-
-- **📱 Per-App Audio Profiles**:
-  - Dynamically switches Dolby Atmos profiles when specific foreground apps are launched.
-  - Headphone & Bluetooth only mode toggle.
-  - Searchable installed application list with profile selection.
-
-- **⚙️ Device-Specific Memory**:
-  - Remembers distinct EQ and Dolby profile configurations per connected device (Speaker, Headset, Bluetooth A2DP).
-
-- **🚀 Systemless KernelSU / Magisk Module Compatibility**:
-  - Seamlessly replaces stock `co.aospa.dolby` and other outdated Dolby manager implementations.
-  - Pre-configured SELinux contexts, permissions, and vendor manifest integration.
-
----
-
-## 🛠️ Project Structure
-
-```
+```text
 LunarisDolby/
-├── Android.bp                                 # Android Build Blueprint
-├── AndroidManifest.xml                        # Manifest with Settings IA integration
-├── privapp-permissions-dolby.xml              # Privileged system permissions
-├── preinstalled-packages-platform-dolby.xml   # Pre-installed package definitions
-├── res/                                       # Strings, drawables, and themes
+├── Android.bp                                 # Soong blueprint
+├── AndroidManifest.xml                        # App manifest & settings injection
+├── privapp-permissions-dolby.xml              # Privileged permissions whitelist
+├── preinstalled-packages-platform-dolby.xml   # Platform package declarations
+├── res/                                       # Strings, icons, and themes
 └── src/org/lunaris/dolby/
-    ├── data/                                  # Data repositories & HAL bridge
-    ├── domain/                                # UI state models
-    ├── service/                               # QS TileService & app monitor
-    └── ui/                                    # Compose screens & components
-        ├── components/                        # Expressive UI components
-        ├── screens/                           # Main, Equalizer, Per-App screens
-        └── theme/                             # M3 Typography, Shapes & Colors
+    ├── data/                                  # Audio HAL IPC and preferences
+    ├── domain/                                # State models
+    ├── service/                               # QS tile service & audio routing monitor
+    └── ui/                                    # Compose screens and viewmodels
 ```
 
----
-
-## 🚀 Installation
+## Installation
 
 ### Via KernelSU / Magisk / APatch
-1. Grab the latest flashable module ZIP (`LunarisDolby_Magisk_Module.zip`).
-2. Flash in **KernelSU Manager**, **Magisk Manager**, or **APatch**.
-3. Reboot your device to apply the systemless priv-app mounts.
+1. Download the flashable module zip from [Releases](../../releases).
+2. Flash in KernelSU, Magisk, or APatch.
+3. Reboot to apply systemless priv-app mounts.
 
-### Building from Source (AOSP Tree)
-Place this repository into your ROM tree under `packages/apps/LunarisDolby`:
+### AOSP / ROM Source Integration
+Clone to `packages/apps/LunarisDolby` or include via local manifest:
 ```bash
-git clone https://github.com/rony1duet/LunarisDolby.git packages/apps/LunarisDolby
+git clone https://github.com/rony1duet/hardware_dolby.git -b PixelOS-17-base hardware/dolby
 ```
-Add `LunarisDolby` to `PRODUCT_PACKAGES` in your device configuration:
-```make
+
+Add `LunarisDolby` to `PRODUCT_PACKAGES` in your device makefile:
+```makefile
 PRODUCT_PACKAGES += \
     LunarisDolby
 ```
 
----
+## License
 
-## 📄 License
-
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+Licensed under [Apache 2.0](LICENSE).
